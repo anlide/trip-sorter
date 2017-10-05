@@ -26,15 +26,15 @@ class App {
             throw new Exception('Wrong format: no deals');
         }
         foreach ($json->deals as $sourceDeal) {
-            $deal = new Deal();
-            $deal->transport = $sourceDeal->transport;
-            $deal->departure = $sourceDeal->departure;
-            $deal->arrival = $sourceDeal->arrival;
-            $deal->duration = new Duration($sourceDeal->duration->h, $sourceDeal->duration->m);
-            $deal->cost = $sourceDeal->cost;
-            $deal->discount = $sourceDeal->discount;
-            $deal->reference = $sourceDeal->reference;
-            $this->deals[] = $deal;
+            $this->deals[] = new Deal(
+                $sourceDeal->transport,
+                $sourceDeal->departure,
+                $sourceDeal->arrival,
+                new Duration($sourceDeal->duration->h, $sourceDeal->duration->m),
+                $sourceDeal->cost,
+                $sourceDeal->discount,
+                $sourceDeal->reference
+            );
         }
     }
 
@@ -103,8 +103,19 @@ class App {
      */
     private function findPathCheapest(string $departure, string $arrival)
     {
-        $deals = [];
-        return $deals;
+        /** @var Way[] $ways - list of all ways */
+        $ways = [];
+
+        // Init ways by first deal.
+        foreach ($this->deals as $deal) {
+            if ($deal->departure != $departure) continue;
+            $way = new Way();
+            $way->addDeal($deal);
+            $ways[] = $way;
+        }
+        var_dump($ways);
+        exit;
+        return [];
     }
 
     /**
@@ -115,7 +126,11 @@ class App {
      */
     private function findPathFastest(string $departure, string $arrival)
     {
-        $deals = [];
-        return $deals;
+        return [];
+    }
+
+    private function getAllNextDeals()
+    {
+
     }
 }

@@ -7,6 +7,9 @@ class Duration {
     /** @var integer $m */
     public $m;
 
+    /** @var integer $m */
+    private $cacheMinutes = null;
+
     /**
      * Duration constructor.
      * @param int $h
@@ -14,7 +17,16 @@ class Duration {
      */
     public function __construct(int $h, int $m)
     {
-        $this->h = $h;
-        $this->m = $m;
+        $this->h = intval($h);
+        $this->m = intval($m);
+    }
+
+    public function getMinutes()
+    {
+        if ($this->cacheMinutes === null) {
+            $this->cacheMinutes = $this->m + $this->h * 60;
+        }
+
+        return $this->cacheMinutes;
     }
 }

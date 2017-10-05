@@ -21,4 +21,15 @@ class Deal {
 
     /** @var string $reference */
     public $reference;
+
+    public function __construct($transport, $departure, $arrival, $duration, $cost, $discount, $reference)
+    {
+        $this->transport = $transport;
+        $this->departure = $departure;
+        $this->arrival = $arrival;
+        $this->duration = $duration;
+        $this->cost = $cost;
+        $this->discount = $discount;
+        $this->reference = $reference;
+    }
 }
