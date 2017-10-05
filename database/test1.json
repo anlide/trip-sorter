@@ -1,0 +1,8 @@
+{"currency":"EUR","deals":[
+  {"transport":"train","departure":"city1","arrival":"city2","duration":{"h":"00","m":"10"},"cost":10,"discount":0,"reference":"TLA0501"},
+  {"transport":"train","departure":"city2","arrival":"city3","duration":{"h":"00","m":"10"},"cost":10,"discount":0,"reference":"TLA0502"},
+  {"transport":"train","departure":"city3","arrival":"city4","duration":{"h":"00","m":"30"},"cost":30,"discount":0,"reference":"TLA0503"},
+  {"transport":"train","departure":"city1","arrival":"city5","duration":{"h":"00","m":"20"},"cost":20,"discount":0,"reference":"TLA0504"},
+  {"transport":"train","departure":"city5","arrival":"city6","duration":{"h":"00","m":"10"},"cost":10,"discount":0,"reference":"TLA0505"},
+  {"transport":"train","departure":"city6","arrival":"city4","duration":{"h":"00","m":"10"},"cost":10,"discount":0,"reference":"TLA0506"}
+]}

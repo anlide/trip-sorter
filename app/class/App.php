@@ -20,7 +20,7 @@ class App {
     private function initDataFromFileJson()
     {
         $this->deals = [];
-        $content = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/../database/data.json');
+        $content = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/../database/test1.json');
         $json = json_decode($content);
         if (!isset($json->deals)) {
             throw new Exception('Wrong format: no deals');
@@ -123,6 +123,7 @@ class App {
             $deal->citiesWas[$deal->departure] = $deal->departure;
             $leftDeals[] = $deal;
         }
+        unset($deal); // We will use this variable later
 
         /** @var float $minimalRequestedValue */
         $minimalRequestedValue = null;
@@ -132,6 +133,7 @@ class App {
         // Main loop of searching.
         // Idea is going over all nearest-requested deals.
         do {
+            // Sorting - mostly wonted deal should be first.
             usort($leftDeals, $algorithmCompare);
             $requestedDeal = $leftDeals[0];
             if ($requestedDeal->arrival == $arrival) {
@@ -146,13 +148,15 @@ class App {
                         throw new Exception('Wrong algorithm [' . $algorithm . ']');
                         break;
                 }
-                if (($minimalRequestedValue === null) || (($minimalRequestedValue !== null) && ($minimalRequestedValue < $minimalNewValue))) {
+                // Bugfix 10-10-30 < 20-10-10
+                // Without $minimalRequestedValue we will choice wrong case
+                if (($minimalRequestedValue === null) ||
+                    (($minimalRequestedValue !== null) && ($minimalRequestedValue > $minimalNewValue))) {
                     $minimalRequestedValue = $minimalNewValue;
                     $minimalRequestedDeal = $requestedDeal;
                 }
-                var_dump($minimalRequestedValue);
-                //return $requestedDeal;
             }
+            // Mark as checked and remove from active-search-array
             $requestedDeal->checked = true;
             unset($leftDeals[0]);
             $nextDeals = $this->getAllNextDeals($requestedDeal);
@@ -172,10 +176,12 @@ class App {
                 if ($newDeal) {
                     switch ($algorithm) {
                         case 'cheapest':
-                            $willAddToLeft = ($minimalRequestedValue === null) || ($minimalRequestedValue < $requestedDeal->costSum);
+                            $willAddToLeft = ($minimalRequestedValue === null) ||
+                                ($minimalRequestedValue < $requestedDeal->costSum);
                             break;
                         case 'fastest':
-                            $willAddToLeft = ($minimalRequestedValue === null) || ($minimalRequestedValue < $requestedDeal->durationSum);
+                            $willAddToLeft = ($minimalRequestedValue === null) ||
+                                ($minimalRequestedValue < $requestedDeal->durationSum);
                             break;
                         default:
                             throw new Exception('Wrong algorithm [' . $algorithm . ']');
@@ -186,6 +192,7 @@ class App {
                     }
                 }
             }
+            unset($requestedDeal); // Free memory - link
         } while (count($leftDeals) > 0);
         if ($minimalRequestedDeal === null) {
             throw new Exception('Do not find way');
