@@ -75,9 +75,45 @@ class App {
      * @param string $departure
      * @param string $arrival
      * @param string $algorithm
+     *
+     * @throws Exception
+     *
      * @return Deal[]
      */
     public function findPath(string $departure, string $arrival, string $algorithm)
+    {
+        switch ($algorithm) {
+            case 'cheapest':
+                return $this->findPathCheapest($departure, $arrival);
+                break;
+            case 'fastest':
+                return $this->findPathFastest($departure, $arrival);
+                break;
+            default:
+                throw new Exception('Wrong algorithm [' . $algorithm . ']');
+                break;
+        }
+    }
+
+    /**
+     * @param string $departure
+     * @param string $arrival
+     *
+     * @return Deal[]
+     */
+    private function findPathCheapest(string $departure, string $arrival)
+    {
+        $deals = [];
+        return $deals;
+    }
+
+    /**
+     * @param string $departure
+     * @param string $arrival
+     *
+     * @return Deal[]
+     */
+    private function findPathFastest(string $departure, string $arrival)
     {
         $deals = [];
         return $deals;

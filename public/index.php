@@ -25,6 +25,7 @@ try {
             echo json_encode(['transports' => $app->getTransports()]);
             break;
         case 'findpath':
+            // Check input params
             if (!isset($_GET['departure'])) {
                 throw new Exception('Missed "departure" param');
             }
@@ -37,6 +38,8 @@ try {
             if (!in_array($_GET['algorithm'], ['cheapest', 'fastest'])) {
                 throw new Exception('Param "algorithm" should be "cheapest" or "fastest"');
             }
+
+            // Find path
             echo json_encode(['deals' => $app->findPath($_GET['departure'], $_GET['arrival'], $_GET['algorithm'])]);
             break;
         default:
