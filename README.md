@@ -21,7 +21,7 @@ http://propertyfinder.allod.ws/?api=transport
 {"transports":["train","bus"]}
 
 # Usage - find path
-http://propertyfinder.local/?api=findpath&departure=Amsterdam&arrival=London&algorithm=cheapest
+http://propertyfinder.allod.ws/?api=findpath&departure=Amsterdam&arrival=Istanbul&algorithm=fastest
 * Param 1: departure - city name
 * Param 2: arrival - city name
 * Param 3: algorithm - cheapest or fastest
@@ -31,3 +31,4 @@ http://propertyfinder.local/?api=findpath&departure=Amsterdam&arrival=London&alg
 # Notes
 Usually for API we should use REST methods.
 It mean that find-path should be via POST.
+But decided to non-use POST for more user-friendly testing.
