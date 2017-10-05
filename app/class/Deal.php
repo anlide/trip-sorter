@@ -2,23 +2,23 @@
 
 class Deal {
     /** @var string $transport - (train|bus|car|...) */
-    private $transport;
+    public $transport;
 
-    /** @var Location $departure - link */
-    private $departure;
+    /** @var string $departure - location title */
+    public $departure;
 
-    /** @var Location $arrival - link */
-    private $arrival;
+    /** @var string $arrival - location title */
+    public $arrival;
 
     /** @var Duration $duration - object */
-    private $duration;
+    public $duration;
 
     /** @var integer $cost */
-    private $cost;
+    public $cost;
 
     /** @var integer $discount */
-    private $discount;
+    public $discount;
 
     /** @var string $reference */
-    private $reference;
+    public $reference;
 }
