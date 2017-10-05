@@ -4,6 +4,9 @@ class App {
     /** @var Deal[] $deals */
     private $deals;
 
+    /**
+     * App constructor.
+     */
     public function __construct()
     {
         // Use leading data from file.
@@ -11,6 +14,9 @@ class App {
         $this->initDataFromFileJson();
     }
 
+    /**
+     * @throws Exception
+     */
     private function initDataFromFileJson()
     {
         $this->deals = [];
@@ -30,5 +36,50 @@ class App {
             $deal->reference = $sourceDeal->reference;
             $this->deals[] = $deal;
         }
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getCities()
+    {
+        $citiesBase = [];
+        foreach ($this->deals as $deal) {
+            $citiesBase[$deal->arrival] = true;
+            $citiesBase[$deal->departure] = true;
+        }
+        $cities = [];
+        foreach ($citiesBase as $city => $void) {
+            $cities[] = $city;
+        }
+        return $cities;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getTransports()
+    {
+        $transportsBase = [];
+        foreach ($this->deals as $deal) {
+            $transportsBase[$deal->transport] = true;
+        }
+        $transports = [];
+        foreach ($transportsBase as $transport => $void) {
+            $transports[] = $transport;
+        }
+        return $transports;
+    }
+
+    /**
+     * @param string $departure
+     * @param string $arrival
+     * @param string $algorithm
+     * @return Deal[]
+     */
+    public function findPath(string $departure, string $arrival, string $algorithm)
+    {
+        $deals = [];
+        return $deals;
     }
 }
