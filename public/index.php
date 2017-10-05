@@ -17,6 +17,20 @@ if (!isset($_GET['api'])) {
 header('Content-type: application/json');
 
 try {
+    /*$cities1 = $app->getCities();
+    $cities2 = $app->getCities();
+
+    foreach ($cities1 as $city1) {
+        foreach ($cities2 as $city2) {
+            if ($city1 == $city2) continue;
+            var_dump($city1 . $city2 . 'cheapest');
+            $app->findPath($city1, $city2, 'cheapest');
+            var_dump($city1 . $city2 . 'fastest');
+            $app->findPath($city1, $city2, 'fastest');
+        }
+    }
+    exit;*/
+
     switch ($_GET['api']) {
         case 'city':
             echo json_encode(['cities' => $app->getCities()]);

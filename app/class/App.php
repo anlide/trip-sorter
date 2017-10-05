@@ -82,95 +82,129 @@ class App {
      */
     public function findPath(string $departure, string $arrival, string $algorithm)
     {
+        if ($departure == $arrival) {
+            throw new Exception('Departure and arrival are identical');
+        }
+
         switch ($algorithm) {
             case 'cheapest':
-                return $this->findPathCheapest($departure, $arrival);
+                $algorithmCompare = function (Deal $a, Deal $b) {
+                    if ($a->costSum < $b->costSum) return -1;
+                    if ($a->costSum > $b->costSum) return 1;
+                    return 0;
+                };
                 break;
             case 'fastest':
-                return $this->findPathFastest($departure, $arrival);
+                $algorithmCompare = function (Deal $a, Deal $b) {
+                    if ($a->durationSum < $b->durationSum) return -1;
+                    if ($a->durationSum > $b->durationSum) return 1;
+                    return 0;
+                };
                 break;
             default:
                 throw new Exception('Wrong algorithm [' . $algorithm . ']');
                 break;
         }
-    }
 
-    /**
-     * @param string $departure
-     * @param string $arrival
-     *
-     * @throws Exception
-     *
-     * @return Deal
-     */
-    private function findPathCheapest(string $departure, string $arrival)
-    {
         /** @var Deal[] $leftDeals */
         $leftDeals = [];
 
-        // Init ways by first deal.
+        // Init ways by first deals.
+        // There are only one place where we use &
+        // All next places we will operate with link to deal.
         foreach ($this->deals as &$deal) {
             $deal->flushSum();
+            $deal->previousDeal = null;
+            $deal->nextDeals = [];
+            $deal->checked = false;
             if ($deal->departure != $departure) continue;
             $deal->costSum += $deal->cost * ((100 - $deal->discount) / 100);
             $deal->durationSum += $deal->duration->getMinutes();
             $deal->citiesWas[$deal->departure] = $deal->departure;
             $leftDeals[] = $deal;
         }
+
+        /** @var float $minimalRequestedValue */
+        $minimalRequestedValue = null;
+        /** @var Deal $minimalRequestedDeal */
+        $minimalRequestedDeal = null;
+
+        // Main loop of searching.
+        // Idea is going over all nearest-requested deals.
         do {
-            usort($leftDeals, function (Deal $a, Deal $b) {
-                if ($a->costSum < $b->costSum) return -1;
-                if ($a->costSum > $b->costSum) return 1;
-                return 0;
-            });
-            $cheapestDeal = $leftDeals[0];
-            if ($cheapestDeal->arrival == $arrival) {
-                return $cheapestDeal;
+            usort($leftDeals, $algorithmCompare);
+            $requestedDeal = $leftDeals[0];
+            if ($requestedDeal->arrival == $arrival) {
+                switch ($algorithm) {
+                    case 'cheapest':
+                        $minimalNewValue = $requestedDeal->costSum;
+                        break;
+                    case 'fastest':
+                        $minimalNewValue = $requestedDeal->durationSum;
+                        break;
+                    default:
+                        throw new Exception('Wrong algorithm [' . $algorithm . ']');
+                        break;
+                }
+                if (($minimalRequestedValue === null) || (($minimalRequestedValue !== null) && ($minimalRequestedValue < $minimalNewValue))) {
+                    $minimalRequestedValue = $minimalNewValue;
+                    $minimalRequestedDeal = $requestedDeal;
+                }
+                var_dump($minimalRequestedValue);
+                //return $requestedDeal;
             }
-            $cheapestDeal->checked = true;
+            $requestedDeal->checked = true;
             unset($leftDeals[0]);
-            $nextDeals = $this->getAllNextDeals($cheapestDeal);
-            foreach ($nextDeals as $deal) { // Here link without &
+            $nextDeals = $this->getAllNextDeals($requestedDeal);
+            foreach ($nextDeals as $deal) {
                 $tripCost = $deal->cost * ((100 - $deal->discount) / 100);
                 $newDeal = ($deal->costSum == 0);
-                if ((!$newDeal) && ($deal->costSum < $cheapestDeal->costSum + $tripCost)) continue;
-                $deal->checked = false;
-                $deal->costSum = $cheapestDeal->costSum + $tripCost;
-                $deal->durationSum = $cheapestDeal->durationSum + $deal->duration->getMinutes();
-                $deal->citiesWas = $cheapestDeal->citiesWas;
+                if ((!$newDeal) && ($deal->costSum <= $requestedDeal->costSum + $tripCost)) continue;
+                if ($deal->checked) {
+                    $leftDeals += $deal->flushAllNextDeals();
+                }
+                $deal->costSum = $requestedDeal->costSum + $tripCost;
+                $deal->durationSum = $requestedDeal->durationSum + $deal->duration->getMinutes();
+                $deal->citiesWas = $requestedDeal->citiesWas;
                 $deal->citiesWas[$deal->departure] = $deal->departure;
-                $deal->previousDeal = $cheapestDeal;
+                $deal->previousDeal = $requestedDeal;
+                $requestedDeal->nextDeals[$deal->reference] = $deal;
                 if ($newDeal) {
-                    $leftDeals[] = $deal;
+                    switch ($algorithm) {
+                        case 'cheapest':
+                            $willAddToLeft = ($minimalRequestedValue === null) || ($minimalRequestedValue < $requestedDeal->costSum);
+                            break;
+                        case 'fastest':
+                            $willAddToLeft = ($minimalRequestedValue === null) || ($minimalRequestedValue < $requestedDeal->durationSum);
+                            break;
+                        default:
+                            throw new Exception('Wrong algorithm [' . $algorithm . ']');
+                            break;
+                    }
+                    if ($willAddToLeft) {
+                        $leftDeals[] = $deal;
+                    }
                 }
             }
         } while (count($leftDeals) > 0);
-        throw new Exception('Do not find way');
+        if ($minimalRequestedDeal === null) {
+            throw new Exception('Do not find way');
+        }
+        return $minimalRequestedDeal;
     }
 
     /**
-     * @param string $departure
-     * @param string $arrival
-     *
-     * @return Deal
-     */
-    private function findPathFastest(string $departure, string $arrival)
-    {
-        return null;
-    }
-
-    /**
-     * @param Deal $cheapestDeal
+     * @param Deal $requestedDeal
      *
      * @return Deal[]
      */
-    private function getAllNextDeals(Deal &$cheapestDeal)
+    private function getAllNextDeals(Deal &$requestedDeal)
     {
         $newDeals = [];
 
-        $wasCity = $cheapestDeal->getCitiesWasArrival();
+        $wasCity = $requestedDeal->getCitiesWasArrival();
         foreach ($this->deals as &$deal) {
-            if ($deal->departure != $cheapestDeal->arrival) continue;
+            if ($deal->departure != $requestedDeal->arrival) continue;
             if (in_array($deal->arrival, $wasCity)) continue;
             $newDeals[] = $deal;
         }

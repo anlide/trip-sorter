@@ -35,6 +35,9 @@ class Deal {
     /** @var Deal $previousDeal - here should be link */
     public $previousDeal;
 
+    /** @var Deal[] $nextDeals - here should be links */
+    public $nextDeals;
+
     /** @var boolean $checked */
     public $checked = false;
 
@@ -62,6 +65,21 @@ class Deal {
     public function getCitiesWasArrival()
     {
         return $this->citiesWas;
+    }
+
+    /**
+     * @return Deal[]
+     */
+    public function flushAllNextDeals()
+    {
+        $deals = [];
+        $this->checked = false;
+        $this->flushSum();
+        foreach ($this->nextDeals as $deal) {
+            $deals += $deal->flushAllNextDeals();
+        }
+
+        return $deals;
     }
 
     /**
