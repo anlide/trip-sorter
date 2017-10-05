@@ -20,7 +20,7 @@ class App {
     private function initDataFromFileJson()
     {
         $this->deals = [];
-        $content = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/../database/test1.json');
+        $content = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/../database/test2.json');
         $json = json_decode($content);
         if (!isset($json->deals)) {
             throw new Exception('Wrong format: no deals');
@@ -163,7 +163,7 @@ class App {
             foreach ($nextDeals as $deal) {
                 $tripCost = $deal->cost * ((100 - $deal->discount) / 100);
                 $newDeal = ($deal->costSum == 0);
-                if ((!$newDeal) && ($deal->costSum <= $requestedDeal->costSum + $tripCost)) continue;
+                if ((!$newDeal) && ($deal->costSum >= $requestedDeal->costSum + $tripCost)) continue;
                 if ($deal->checked) {
                     $leftDeals += $deal->flushAllNextDeals();
                 }
