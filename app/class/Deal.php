@@ -43,8 +43,8 @@ class Deal {
         string $departure,
         string $arrival,
         Duration $duration,
-        integer $cost,
-        integer $discount,
+        int $cost,
+        int $discount,
         string $reference)
     {
         $this->transport = $transport;
