@@ -21,6 +21,9 @@ class Duration {
         $this->m = intval($m);
     }
 
+    /**
+     * @return int
+     */
     public function getMinutes()
     {
         if ($this->cacheMinutes === null) {

@@ -1,7 +1,7 @@
 <?php
 
-function __autoload($classname) {
-    $filename = "./../app/class/". $classname .".php";
+function __autoload($className) {
+    $filename = "./../app/class/". $className .".php";
     if (file_exists($filename)) {
         include_once($filename);
     }

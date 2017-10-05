@@ -20,7 +20,7 @@ class App {
     private function initDataFromFileJson()
     {
         $this->deals = [];
-        $content = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/../database/test2.json');
+        $content = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/../database/data.json');
         $json = json_decode($content);
         if (!isset($json->deals)) {
             throw new Exception('Wrong format: no deals');
@@ -115,7 +115,6 @@ class App {
         foreach ($this->deals as &$deal) {
             $deal->flushSum();
             $deal->previousDeal = null;
-            $deal->nextDeals = [];
             $deal->checked = false;
             if ($deal->departure != $departure) continue;
             $deal->costSum += $deal->cost * ((100 - $deal->discount) / 100);
@@ -176,15 +175,12 @@ class App {
                 }
                 // If we find better way to the specific city - apply it
                 if ((!$newDeal) && (!$betterWay)) continue;
-                if ($deal->checked) {
-                    $leftDeals += $deal->flushAllNextDeals();
-                }
+                $deal->checked = false;
                 $deal->costSum = $requestedDeal->costSum + $tripCost;
                 $deal->durationSum = $requestedDeal->durationSum + $deal->duration->getMinutes();
                 $deal->citiesWas = $requestedDeal->citiesWas;
                 $deal->citiesWas[$deal->departure] = $deal->departure;
                 $deal->previousDeal = $requestedDeal;
-                $requestedDeal->nextDeals[$deal->reference] = $deal;
                 if ($newDeal) {
                     switch ($algorithm) {
                         case 'cheapest':
