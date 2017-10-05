@@ -163,7 +163,19 @@ class App {
             foreach ($nextDeals as $deal) {
                 $tripCost = $deal->cost * ((100 - $deal->discount) / 100);
                 $newDeal = ($deal->costSum == 0);
-                if ((!$newDeal) && ($deal->costSum >= $requestedDeal->costSum + $tripCost)) continue;
+                switch ($algorithm) {
+                    case 'cheapest':
+                        $betterWay = ($deal->costSum >= $requestedDeal->costSum + $tripCost);
+                        break;
+                    case 'fastest':
+                        $betterWay = ($deal->durationSum >= $requestedDeal->durationSum + $deal->duration);
+                        break;
+                    default:
+                        throw new Exception('Wrong algorithm [' . $algorithm . ']');
+                        break;
+                }
+                // If we find better way to the specific city - apply it
+                if ((!$newDeal) && (!$betterWay)) continue;
                 if ($deal->checked) {
                     $leftDeals += $deal->flushAllNextDeals();
                 }
