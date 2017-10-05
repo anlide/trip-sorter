@@ -29,6 +29,6 @@ http://propertyfinder.allod.ws/?api=findpath&departure=Amsterdam&arrival=Istanbu
 {"deals":[{"transport":"bus","departure":"Amsterdam","arrival":"Warsaw","duration":315,"cost":40,"discount":25,"reference":"BAW0515"},{"transport":"bus","departure":"Warsaw","arrival":"Stockholm","duration":315,"cost":40,"discount":50,"reference":"BWS0515"},{"transport":"car","departure":"Stockholm","arrival":"Moscow","duration":240,"cost":120,"discount":0,"reference":"CSM0400"}]}
 
 # Notes
-Usually for API we should use REST methods.
-It mean that find-path should be via POST.
+Usually for API we should use REST methods.<br/>
+It mean that find-path should be via POST.<br/>
 But decided to non-use POST for more user-friendly testing.
