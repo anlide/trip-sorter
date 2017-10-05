@@ -40,7 +40,7 @@ try {
             }
 
             // Find path
-            echo json_encode(['deals' => $app->findPath($_GET['departure'], $_GET['arrival'], $_GET['algorithm'])]);
+            echo json_encode(['deals' => $app->findPath($_GET['departure'], $_GET['arrival'], $_GET['algorithm'])->getJsonData()]);
             break;
         default:
             throw new Exception('Wrong API type');

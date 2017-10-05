@@ -78,7 +78,7 @@ class App {
      *
      * @throws Exception
      *
-     * @return Deal[]
+     * @return Deal
      */
     public function findPath(string $departure, string $arrival, string $algorithm)
     {
@@ -99,38 +99,82 @@ class App {
      * @param string $departure
      * @param string $arrival
      *
-     * @return Deal[]
+     * @throws Exception
+     *
+     * @return Deal
      */
     private function findPathCheapest(string $departure, string $arrival)
     {
-        /** @var Way[] $ways - list of all ways */
-        $ways = [];
+        /** @var Deal[] $leftDeals */
+        $leftDeals = [];
 
         // Init ways by first deal.
-        foreach ($this->deals as $deal) {
+        foreach ($this->deals as &$deal) {
+            $deal->flushSum();
             if ($deal->departure != $departure) continue;
-            $way = new Way();
-            $way->addDeal($deal);
-            $ways[] = $way;
+            $deal->costSum += $deal->cost * ((100 - $deal->discount) / 100);
+            $deal->durationSum += $deal->duration->getMinutes();
+            $deal->citiesWas[$deal->departure] = $deal->departure;
+            $leftDeals[] = $deal;
         }
-        var_dump($ways);
-        exit;
-        return [];
+        do {
+            usort($leftDeals, function (Deal $a, Deal $b) {
+                if ($a->costSum < $b->costSum) return -1;
+                if ($a->costSum > $b->costSum) return 1;
+                return 0;
+            });
+            $cheapestDeal = $leftDeals[0];
+            if ($cheapestDeal->arrival == $arrival) {
+                return $cheapestDeal;
+            }
+            $cheapestDeal->checked = true;
+            unset($leftDeals[0]);
+            $nextDeals = $this->getAllNextDeals($cheapestDeal);
+            foreach ($nextDeals as $deal) { // Here link without &
+                $tripCost = $deal->cost * ((100 - $deal->discount) / 100);
+                $newDeal = ($deal->costSum == 0);
+                if ((!$newDeal) && ($deal->costSum < $cheapestDeal->costSum + $tripCost)) continue;
+                $deal->checked = false;
+                $deal->costSum = $cheapestDeal->costSum + $tripCost;
+                $deal->durationSum = $cheapestDeal->durationSum + $deal->duration->getMinutes();
+                $deal->citiesWas = $cheapestDeal->citiesWas;
+                $deal->citiesWas[$deal->departure] = $deal->departure;
+                $deal->previousDeal = $cheapestDeal;
+                if ($newDeal) {
+                    $leftDeals[] = $deal;
+                }
+            }
+        } while (count($leftDeals) > 0);
+        throw new Exception('Do not find way');
     }
 
     /**
      * @param string $departure
      * @param string $arrival
      *
-     * @return Deal[]
+     * @return Deal
      */
     private function findPathFastest(string $departure, string $arrival)
     {
-        return [];
+        return null;
     }
 
-    private function getAllNextDeals()
+    /**
+     * @param Deal $cheapestDeal
+     *
+     * @return Deal[]
+     */
+    private function getAllNextDeals(Deal &$cheapestDeal)
     {
+        $newDeals = [];
 
+        $wasCity = $cheapestDeal->getCitiesWasArrival();
+        foreach ($this->deals as &$deal) {
+            if ($deal->departure != $cheapestDeal->arrival) continue;
+            if (in_array($deal->arrival, $wasCity)) continue;
+            $newDeals[] = $deal;
+        }
+
+        return $newDeals;
     }
 }
