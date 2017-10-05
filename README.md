@@ -1,2 +1,2 @@
 # trip-sorter
-Trip sorter
+Trip sorter description
