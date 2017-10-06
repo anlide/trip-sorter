@@ -16,6 +16,9 @@ if (!isset($_GET['api'])) {
 // Anyway next code we will render Json
 header('Content-type: application/json');
 
+// Allow access to API from anywhere
+header('Access-Control-Allow-Origin: *');
+
 try {
     switch ($_GET['api']) {
         case 'city':
