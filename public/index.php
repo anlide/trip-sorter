@@ -17,7 +17,7 @@ if (!isset($_GET['api'])) {
 header('Content-type: application/json');
 
 // Allow access to API from anywhere
-header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Origin: http://localhost:8080');
 
 try {
     switch ($_GET['api']) {
