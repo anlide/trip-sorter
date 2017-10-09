@@ -16,8 +16,9 @@ if (!isset($_GET['api'])) {
 // Anyway next code we will render Json
 header('Content-type: application/json');
 
-// Allow access to API from anywhere
+// Allow access to API
 header('Access-Control-Allow-Origin: http://localhost:8080');
+header('Access-Control-Allow-Origin: http://propertyfinder-ui.allod.ws');
 
 try {
     switch ($_GET['api']) {
